@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/ATM/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ATM/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AirlineManagementSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/AirlineManagementSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CarRentalSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CarRentalSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CoffeeVendingMachine/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/CoffeeVendingMachine/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ConcertTicketBookingSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ConcertTicketBookingSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DigitalWallet/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DigitalWallet/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ElevatorSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ElevatorSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/HotelManagementSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/HotelManagementSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LRUCache/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LRUCache/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LibraryManagementSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LibraryManagementSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LinkedIn/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LinkedIn/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LoggingFramework/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/LoggingFramework/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/OnlineAuctionSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/OnlineAuctionSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ParkingLot/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ParkingLot/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PubSubSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/PubSubSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RestaurantManagementSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RestaurantManagementSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SocialNetworkingService/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SocialNetworkingService/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/StackOverflow/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/StackOverflow/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TaskManagementSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TaskManagementSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TicTacToe/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TicTacToe/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TrafficSignalSystem/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TrafficSignalSystem/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/VendingMachine/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/VendingMachine/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

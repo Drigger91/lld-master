@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>LLD-Problems</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <!-- Easy -->
+        <module>ParkingLot</module>
+        <module>VendingMachine</module>
+        <module>StackOverflow</module>
+        <module>LoggingFramework</module>
+        <module>CoffeeVendingMachine</module>
+        <module>TrafficSignalSystem</module>
+        <module>TaskManagementSystem</module>
+        <!-- Medium -->
+        <module>PubSubSystem</module>
+        <module>TicTacToe</module>
+        <module>CarRentalSystem</module>
+        <module>ATM</module>
+        <module>HotelManagementSystem</module>
+        <module>LinkedIn</module>
+        <module>SocialNetworkingService</module>
+        <module>ElevatorSystem</module>
+        <module>LibraryManagementSystem</module>
+        <module>RestaurantManagementSystem</module>
+        <module>AirlineManagementSystem</module>
+        <module>DigitalWallet</module>
+        <module>OnlineAuctionSystem</module>
+        <module>ConcertTicketBookingSystem</module>
+        <module>LRUCache</module>
+        <!-- Hard -->
+    </modules>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>
