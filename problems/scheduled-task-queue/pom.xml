@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>scheduled-task-queue</artifactId>
+    <properties>
+        <exec.mainClass>Main</exec.mainClass>
+    </properties>
 </project>

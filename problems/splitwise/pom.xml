@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>splitwise</artifactId>
+    <properties>
+        <exec.mainClass>SplitSystem.Main</exec.mainClass>
+    </properties>
 </project>

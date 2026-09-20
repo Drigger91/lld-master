@@ -12,4 +12,8 @@ public abstract class Vehicle {
     public VehicleType getType() {
         return type;
     }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
 }

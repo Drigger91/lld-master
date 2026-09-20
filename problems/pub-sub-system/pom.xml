@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>pub-sub-system</artifactId>
+    <properties>
+        <exec.mainClass>PubSubSystemMain</exec.mainClass>
+    </properties>
 </project>

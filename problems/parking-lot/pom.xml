@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>parking-lot</artifactId>
+    <properties>
+        <exec.mainClass>ParkingLotMain</exec.mainClass>
+    </properties>
 </project>

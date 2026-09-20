@@ -7,7 +7,7 @@ public class CurrencyConverter {
     private static final Map<Currency, BigDecimal> exchangeRates = new HashMap<>();
 
     static {
-        // Initialize exchange rates
+        // Units of each currency per 1 USD
         exchangeRates.put(Currency.USD, BigDecimal.ONE);
         exchangeRates.put(Currency.EUR, new BigDecimal("0.85"));
         exchangeRates.put(Currency.GBP, new BigDecimal("0.72"));
@@ -18,6 +18,7 @@ public class CurrencyConverter {
     public static BigDecimal convert(BigDecimal amount, Currency sourceCurrency, Currency targetCurrency) {
         BigDecimal sourceRate = exchangeRates.get(sourceCurrency);
         BigDecimal targetRate = exchangeRates.get(targetCurrency);
-        return amount.multiply(sourceRate).divide(targetRate, RoundingMode.HALF_UP);
+        // to USD first (divide by source rate), then into the target currency
+        return amount.multiply(targetRate).divide(sourceRate, 2, RoundingMode.HALF_UP);
     }
 }

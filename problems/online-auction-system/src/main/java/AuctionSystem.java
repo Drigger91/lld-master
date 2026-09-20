@@ -45,19 +45,26 @@ public class AuctionSystem {
         return matchingListings;
     }
 
-    public void placeBid(String auctionListingId, Bid bid) {
+    public AuctionListing getAuctionListing(String auctionListingId) {
+        return auctionListings.get(auctionListingId);
+    }
+
+    /** @return true if the bid was accepted (listing exists, is ACTIVE and bid beats the current highest). */
+    public boolean placeBid(String auctionListingId, Bid bid) {
         AuctionListing auctionListing = auctionListings.get(auctionListingId);
-        if (auctionListing != null) {
-            auctionListing.placeBid(bid);
+        if (auctionListing == null) {
+            return false;
         }
+        return auctionListing.placeBid(bid);
     }
 
     private void startAuctionTimer(AuctionListing auctionListing) {
-        Timer timer = new Timer();
+        Timer timer = new Timer("auction-" + auctionListing.getId(), true); // daemon: does not keep the JVM alive
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 auctionListing.closeAuction();
+                timer.cancel();
             }
         }, auctionListing.getDuration());
     }

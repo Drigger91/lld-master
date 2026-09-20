@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>lru-cache</artifactId>
+    <properties>
+        <exec.mainClass>LRUCacheMain</exec.mainClass>
+    </properties>
 </project>

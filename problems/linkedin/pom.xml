@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>linkedin</artifactId>
+    <properties>
+        <exec.mainClass>LinkedInMain</exec.mainClass>
+    </properties>
 </project>

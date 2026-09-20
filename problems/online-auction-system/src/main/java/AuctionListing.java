@@ -26,13 +26,16 @@ public class AuctionListing {
         this.bids = new CopyOnWriteArrayList<>();
     }
 
-    public synchronized void placeBid(Bid bid) {
+    /** @return true if accepted: auction still ACTIVE and amount strictly above the current highest bid. */
+    public synchronized boolean placeBid(Bid bid) {
         if (status == AuctionStatus.ACTIVE && bid.getAmount() > currentHighestBid) {
             currentHighestBid = bid.getAmount();
             currentHighestBidder = bid.getBidder();
             bids.add(bid);
             notifyObservers();
+            return true;
         }
+        return false;
     }
 
     public synchronized void closeAuction() {
@@ -57,6 +60,30 @@ public class AuctionListing {
 
     public long getDuration() {
         return duration;
+    }
+
+    public double getStartingPrice() {
+        return startingPrice;
+    }
+
+    public User getSeller() {
+        return seller;
+    }
+
+    public synchronized AuctionStatus getStatus() {
+        return status;
+    }
+
+    public synchronized double getCurrentHighestBid() {
+        return currentHighestBid;
+    }
+
+    public synchronized User getCurrentHighestBidder() {
+        return currentHighestBidder;
+    }
+
+    public List<Bid> getBids() {
+        return bids;
     }
 
     private void notifyObservers() {

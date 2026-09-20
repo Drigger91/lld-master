@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>coffee-vending-machine</artifactId>
+    <properties>
+        <exec.mainClass>CoffeeVendingMachineMain</exec.mainClass>
+    </properties>
 </project>

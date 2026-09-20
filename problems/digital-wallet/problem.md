@@ -1,0 +1,51 @@
+# Digital Wallet
+
+| Difficulty | Patterns | Key concepts |
+|---|---|---|
+| Medium | Singleton, Template/abstract class (PaymentMethod), Static utility (CurrencyConverter) | BigDecimal money, currency conversion, synchronized transfers, custom exception, transaction history |
+
+## Problem statement
+Design a digital wallet. Users hold one or more accounts, each in a single currency, and register payment methods such as cards or bank accounts. Money can be deposited into an account and transferred between accounts, including accounts in different currencies; every transfer is recorded so a user can view an account's transaction history. A transfer that exceeds the source balance must be rejected.
+
+## Functional requirements
+1. Create users and accounts (`Account` has an id, owner, account number, `Currency`, balance starting at zero).
+2. Register payment methods (`CreditCard`, `BankAccount`) for a user.
+3. Deposit into and withdraw from an account; withdrawing more than the balance throws `InsufficientFundsException`.
+4. Transfer an amount in a given currency from one account to another. If either account is in a different currency, convert with `CurrencyConverter` (fixed rates relative to USD).
+5. Record each transfer as a `Transaction` (id, source, destination, requested amount and currency, timestamp) on both accounts.
+6. Return an account's transaction history.
+
+## Non-functional requirements & constraints
+- In-memory; `DigitalWallet` is a singleton holding `ConcurrentHashMap`s of users, accounts and payment methods.
+- Money is `BigDecimal`; conversions round to 2 decimal places (`HALF_UP`).
+- `Account.deposit/withdraw/addTransaction` are `synchronized` per account and `transferFunds` is `synchronized` on the wallet, so transfers are serialised globally.
+- Exchange rates are hard-coded; `PaymentMethod.processPayment` is a stub that always succeeds.
+
+## Clarifying questions to ask
+- Can an account hold several currencies? — No, one currency per account; users may have several accounts.
+- In which currency is the transfer amount expressed? — The caller passes it; the debit and credit are converted to each account's currency.
+- Are exchange rates live? — No, a static table (units per USD).
+- Is a transfer atomic? — Withdraw first, then deposit, under one wallet-wide lock; a failed withdraw leaves both balances untouched.
+- Are payment methods actually charged? — Not in this version; they are registered only.
+- Do we need a ledger of deposits? — No, only transfers create `Transaction`s.
+
+## Core entities
+- `DigitalWallet` — singleton facade: registries for users/accounts/payment methods, `transferFunds`, `getTransactionHistory`.
+- `User` — id, name, email, password, list of accounts.
+- `Account` — id, owner, account number, `Currency`, `BigDecimal` balance, transaction list; synchronized `deposit`/`withdraw`.
+- `Transaction` — immutable record of a transfer.
+- `PaymentMethod` (abstract) with `CreditCard` and `BankAccount` — `processPayment(amount, currency)`.
+- `Currency` — enum `USD, EUR, GBP, JPY`.
+- `CurrencyConverter` — static rate table and `convert(amount, from, to)`.
+- `InsufficientFundsException` — unchecked, thrown by `Account.withdraw`.
+
+## Design hints
+- **BigDecimal, never double, for money.** Use string constructors and explicit scale/rounding on division.
+- **Conversion direction.** With rates stored as "units per USD", converting is `amount / rate(from) * rate(to)`. Getting this backwards is the classic bug in this exercise; a unit test with 100 USD -> 85 EUR catches it.
+- **Withdraw before deposit.** The withdraw is the only step that can fail, so doing it first gives you rollback for free; note that the record should store the *requested* amount and currency, not a converted one.
+- **Locking granularity.** A single `synchronized` on the wallet is simple and deadlock-free but serialises all transfers. The upgrade is locking the two accounts in a consistent order (by id) — be ready to explain why ordering matters.
+- **Singleton** is fine for a demo but hurts testability; an interviewer may ask you to inject the wallet instead.
+- Common mistakes: exposing the mutable transaction list; recording the transaction before the withdraw succeeds; per-account locks without ordering (deadlock).
+
+## Run
+mvn -q -pl problems/digital-wallet compile exec:java

@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>document-sharing-service</artifactId>
+    <properties>
+        <exec.mainClass>DocumentService.Main</exec.mainClass>
+    </properties>
 </project>

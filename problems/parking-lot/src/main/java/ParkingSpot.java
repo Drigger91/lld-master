@@ -7,8 +7,12 @@ public class ParkingSpot {
     private Vehicle parkedVehicle;
 
     public ParkingSpot(int spotNumber) {
+        this(spotNumber, VehicleType.CAR); // Default vehicle type is CAR
+    }
+
+    public ParkingSpot(int spotNumber, VehicleType vehicleType) {
         this.spotNumber = spotNumber;
-        this.vehicleType = VehicleType.CAR; // Default vehicle type is CAR
+        this.vehicleType = vehicleType;
     }
 
     public synchronized void parkVehicle(Vehicle vehicle) {

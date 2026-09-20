@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>digital-wallet</artifactId>
+    <properties>
+        <exec.mainClass>DigitalWalletMain</exec.mainClass>
+    </properties>
 </project>

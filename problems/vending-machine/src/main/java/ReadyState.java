@@ -31,13 +31,15 @@ public class ReadyState implements VendingMachineState {
 
     @Override
     public void returnChange() {
-        double change = vendingMachine.getTotalPayment() - vendingMachine.getSelectedProduct().getPrice();
-        if (change > 0) {
-            System.out.println("Change returned: $" + change);
-            vendingMachine.resetPayment();
+        // Payment is still incomplete here, so this is a cancellation: refund everything inserted.
+        double refund = vendingMachine.getTotalPayment();
+        if (refund > 0) {
+            System.out.println("Transaction cancelled. Refunded: $" + refund);
         } else {
-            System.out.println("No change to return.");
+            System.out.println("Transaction cancelled. No change to return.");
         }
+        vendingMachine.resetPayment();
+        vendingMachine.resetSelectedProduct();
         vendingMachine.setState(vendingMachine.getIdleState());
     }
 

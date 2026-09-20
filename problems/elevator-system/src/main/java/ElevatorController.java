@@ -9,13 +9,24 @@ public class ElevatorController {
         for (int i = 0; i < numElevators; i++) {
             Elevator elevator = new Elevator(i + 1, capacity);
             elevators.add(elevator);
-            new Thread(elevator::run).start();
+            Thread worker = new Thread(elevator::run, "elevator-" + (i + 1));
+            worker.setDaemon(true); // let the JVM exit once the demo is done
+            worker.start();
         }
     }
 
     public void requestElevator(int sourceFloor, int destinationFloor) {
         Elevator optimalElevator = findOptimalElevator(sourceFloor, destinationFloor);
         optimalElevator.addRequest(new Request(sourceFloor, destinationFloor));
+    }
+
+    /** Blocks until every elevator has served all its requests and is waiting. */
+    public void awaitIdle() throws InterruptedException {
+        for (Elevator elevator : elevators) {
+            while (!elevator.isIdle()) {
+                Thread.sleep(200);
+            }
+        }
     }
 
     private Elevator findOptimalElevator(int sourceFloor, int destinationFloor) {

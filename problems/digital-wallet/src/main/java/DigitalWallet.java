@@ -49,15 +49,17 @@ public class DigitalWallet {
     }
 
     public synchronized void transferFunds(Account sourceAccount, Account destinationAccount, BigDecimal amount, Currency currency) {
+        BigDecimal debit = amount;
         if (sourceAccount.getCurrency() != currency) {
-            amount = CurrencyConverter.convert(amount, currency, sourceAccount.getCurrency());
+            debit = CurrencyConverter.convert(amount, currency, sourceAccount.getCurrency());
         }
-        sourceAccount.withdraw(amount);
+        sourceAccount.withdraw(debit);
 
+        BigDecimal credit = amount;
         if (destinationAccount.getCurrency() != currency) {
-            amount = CurrencyConverter.convert(amount, currency, destinationAccount.getCurrency());
+            credit = CurrencyConverter.convert(amount, currency, destinationAccount.getCurrency());
         }
-        destinationAccount.deposit(amount);
+        destinationAccount.deposit(credit);
 
         String transactionId = generateTransactionId();
         Transaction transaction = new Transaction(transactionId, sourceAccount, destinationAccount, amount, currency);

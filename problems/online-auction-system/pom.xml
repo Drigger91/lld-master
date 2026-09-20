@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>online-auction-system</artifactId>
+    <properties>
+        <exec.mainClass>AuctionSystemMain</exec.mainClass>
+    </properties>
 </project>

@@ -22,4 +22,12 @@ public class Bid {
     public User getBidder() {
         return bidder;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 }

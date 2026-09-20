@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>library-management-system</artifactId>
+    <properties>
+        <exec.mainClass>LibraryManagementSystemMain</exec.mainClass>
+    </properties>
 </project>

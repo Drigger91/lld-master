@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>car-rental-system</artifactId>
+    <properties>
+        <exec.mainClass>CarRentalSystemMain</exec.mainClass>
+    </properties>
 </project>

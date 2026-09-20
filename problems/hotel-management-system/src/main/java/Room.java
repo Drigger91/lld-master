@@ -27,6 +27,15 @@ public class Room {
         }
     }
 
+    /** Cancels a booking: BOOKED -> AVAILABLE. Occupied rooms must be checked out instead. */
+    public synchronized void release() {
+        if (status == RoomStatus.BOOKED) {
+            status = RoomStatus.AVAILABLE;
+        } else {
+            throw new IllegalStateException("Room is not booked.");
+        }
+    }
+
     public synchronized void checkOut() {
         if (status == RoomStatus.OCCUPIED) {
             status = RoomStatus.AVAILABLE;

@@ -23,6 +23,10 @@ public class Flight {
         this.availableSeats = new ArrayList<>();
     }
 
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
     public String getSource() {
         return source;
     }

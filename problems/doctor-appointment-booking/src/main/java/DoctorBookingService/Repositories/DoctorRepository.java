@@ -13,6 +13,10 @@ public class DoctorRepository {
         db.put(id, doctor);
     }
 
+    public Doctor getDoctor(int doctorId) {
+        return db.get(doctorId);
+    }
+
     private List<Doctor> getAllDoctorsForSpecialization(Speciality specialization) {
         List<Doctor> doctors = new ArrayList<>();
         for (Map.Entry<Integer, Doctor> entry : db.entrySet()) {

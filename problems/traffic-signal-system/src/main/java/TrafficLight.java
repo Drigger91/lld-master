@@ -18,8 +18,12 @@ public class TrafficLight {
         notifyObservers();
     }
 
-    public Signal getCurrentSignal() {
+    public synchronized Signal getCurrentSignal() {
         return currentSignal;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public int getRedDuration() {
@@ -48,6 +52,6 @@ public class TrafficLight {
 
     private void notifyObservers() {
         // Notify observers (e.g., roads) about the signal change
-        // ...
+        System.out.println(id + " -> " + currentSignal);
     }
 }

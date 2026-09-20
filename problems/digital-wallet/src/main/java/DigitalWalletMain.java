@@ -27,8 +27,19 @@ public class DigitalWalletMain {
         account1.deposit(new BigDecimal("1000.00"));
         account2.deposit(new BigDecimal("500.00"));
 
-        // Transfer funds
+        // Transfer funds: 100 USD leaves account1, arrives as EUR in account2
         digitalWallet.transferFunds(account1, account2, new BigDecimal("100.00"), Currency.USD);
+        System.out.println("Account 1 balance: " + account1.getBalance() + " " + account1.getCurrency());
+        System.out.println("Account 2 balance: " + account2.getBalance() + " " + account2.getCurrency());
+
+        // Transfer more than the balance -> rejected, balances unchanged
+        try {
+            digitalWallet.transferFunds(account2, account1, new BigDecimal("5000.00"), Currency.EUR);
+        } catch (InsufficientFundsException e) {
+            System.out.println("Transfer rejected: " + e.getMessage());
+        }
+        System.out.println("Account 2 balance after rejected transfer: " + account2.getBalance() + " " + account2.getCurrency());
+        System.out.println();
 
         // Get transaction history
         List<Transaction> transactionHistory1 = digitalWallet.getTransactionHistory(account1);

@@ -10,4 +10,16 @@ public class Patient {
         this.mobileNumber = mobileNumber;
         this.id = id;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public int getId() {
+        return id;
+    }
 }

@@ -64,10 +64,27 @@ public class Doctor {
         }
         freeSlots.remove(slot);
         unavailableSlots.add(slot);
-        bookedSlots.put(dateOfAppointment, freeSlots);
-        availableSlots.put(dateOfAppointment, unavailableSlots);
+        availableSlots.put(dateOfAppointment, freeSlots);
+        bookedSlots.put(dateOfAppointment, unavailableSlots);
         System.out.println("Appointment successfully booked for provided slot");
         return true;
+    }
+
+    public synchronized boolean cancelAppointment(Slot slot, Date dateOfAppointment) {
+        List<Slot> unavailableSlots = bookedSlots.getOrDefault(dateOfAppointment, new ArrayList<>());
+        if (!unavailableSlots.contains(slot)) {
+            System.out.println("No booking found for the given slot");
+            return false;
+        }
+        unavailableSlots.remove(slot);
+        availableSlots.computeIfAbsent(dateOfAppointment, d -> new ArrayList<>()).add(slot);
+        availableSlots.get(dateOfAppointment).sort(Comparator.comparing(Slot::getStartTime));
+        System.out.println("Appointment cancelled, slot released");
+        return true;
+    }
+
+    public List<Slot> getAvailableSlots(Date dateOfAppointment) {
+        return Collections.unmodifiableList(availableSlots.getOrDefault(dateOfAppointment, new ArrayList<>()));
     }
 
     public void getAvailableSlotsForTheDay(Date dateOfAppointment) {

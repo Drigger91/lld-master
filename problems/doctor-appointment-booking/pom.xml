@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>doctor-appointment-booking</artifactId>
+    <properties>
+        <exec.mainClass>DoctorBookingService.Main</exec.mainClass>
+    </properties>
 </project>

@@ -13,10 +13,12 @@ public class LoggingFrameworkMain {
         logger.debug("This is a debug message");
 
         // Changing log level and appender
-        LoggerConfig config = new LoggerConfig(LogLevel.DEBUG, new FileAppender("LoggingFramework/src/main/java/app.log"));
+        String logFile = System.getProperty("java.io.tmpdir") + "/logging-framework-app.log";
+        LoggerConfig config = new LoggerConfig(LogLevel.DEBUG, new FileAppender(logFile));
         logger.setConfig(config);
 
         logger.debug("This is a debug message");
         logger.info("This is an information message");
+        System.out.println("DEBUG and INFO messages appended to " + logFile);
     }
 }

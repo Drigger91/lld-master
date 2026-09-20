@@ -1,5 +1,5 @@
 public class TrafficSignalSystemMain {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         TrafficController trafficController = TrafficController.getInstance();
 
         // Create roads
@@ -8,11 +8,11 @@ public class TrafficSignalSystemMain {
         Road road3 = new Road("R3", "Park Avenue");
         Road road4 = new Road("R4", "Elm Street");
 
-        // Create traffic lights
-        TrafficLight trafficLight1 = new TrafficLight("TL1", 30000, 5000, 60000);
-        TrafficLight trafficLight2 = new TrafficLight("TL2", 30000, 5000, 60000);
-        TrafficLight trafficLight3 = new TrafficLight("TL3", 30000, 5000, 60000);
-        TrafficLight trafficLight4 = new TrafficLight("TL4", 30000, 5000, 60000);
+        // Create traffic lights (durations in ms; short so the demo finishes quickly)
+        TrafficLight trafficLight1 = new TrafficLight("TL1", 300, 100, 400);
+        TrafficLight trafficLight2 = new TrafficLight("TL2", 300, 100, 400);
+        TrafficLight trafficLight3 = new TrafficLight("TL3", 300, 100, 400);
+        TrafficLight trafficLight4 = new TrafficLight("TL4", 300, 100, 400);
 
         // Assign traffic lights to roads
         road1.setTrafficLight(trafficLight1);
@@ -26,10 +26,22 @@ public class TrafficSignalSystemMain {
         trafficController.addRoad(road3);
         trafficController.addRoad(road4);
 
-        // Start traffic control
-        trafficController.startTrafficControl();
+        System.out.println("Initial signal on R1: " + trafficLight1.getCurrentSignal());
 
-        // Simulate an emergency on a specific road
+        // Start traffic control and let the lights cycle for a while
+        trafficController.startTrafficControl();
+        Thread.sleep(1000);
+
+        // Simulate an emergency on a specific road: its light is forced GREEN immediately
+        System.out.println("--- Emergency on R2 ---");
         trafficController.handleEmergency("R2");
+        System.out.println("R2 signal after emergency: " + trafficLight2.getCurrentSignal());
+
+        // Emergency on an unknown road is ignored
+        trafficController.handleEmergency("R99");
+
+        Thread.sleep(600);
+        trafficController.stopTrafficControl();
+        System.out.println("Traffic control stopped.");
     }
 }

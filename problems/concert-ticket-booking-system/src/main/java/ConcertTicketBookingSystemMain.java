@@ -8,8 +8,9 @@ public class ConcertTicketBookingSystemMain {
         ConcertTicketBookingSystem bookingSystem = ConcertTicketBookingSystem.getInstance();
 
         // Create concerts
+        LocalDateTime concert1Date = LocalDateTime.now().plusDays(30);
         List<Seat> concert1Seats = generateSeats(100);
-        Concert concert1 = new Concert("C001", "Artist 1", "Venue 1", LocalDateTime.now().plusDays(30), concert1Seats);
+        Concert concert1 = new Concert("C001", "Artist 1", "Venue 1", concert1Date, concert1Seats);
         bookingSystem.addConcert(concert1);
 
         List<Seat> concert2Seats = generateSeats(50);
@@ -21,7 +22,7 @@ public class ConcertTicketBookingSystemMain {
         User user2 = new User("U002", "Jane Smith", "jane@example.com");
 
         // Search concerts
-        List<Concert> searchResults = bookingSystem.searchConcerts("Artist 1", "Venue 1", LocalDateTime.now().plusDays(30));
+        List<Concert> searchResults = bookingSystem.searchConcerts("Artist 1", "Venue 1", concert1Date);
         System.out.println("Search Results:");
         for (Concert concert : searchResults) {
             System.out.println("Concert: " + concert.getArtist() + " at " + concert.getVenue());

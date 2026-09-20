@@ -45,7 +45,8 @@ public class Elevator {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt(); // shutdown signal: stop serving
+                return;
             }
         }
     }
@@ -81,6 +82,11 @@ public class Elevator {
 
     public void run() {
         processRequests();
+    }
+
+    /** True when the car is parked with no pending requests (the monitor is held while moving). */
+    public synchronized boolean isIdle() {
+        return requests.isEmpty();
     }
 
     public int getCurrentFloor() {

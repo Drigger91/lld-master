@@ -18,4 +18,34 @@ public class Appointment {
         this.dateOfAppointment = dateOfAppointment;
         this.timeSlot = timeSlot;
     }
+
+    public int getDoctorId() {
+        return doctorId;
+    }
+
+    public int getPatientId() {
+        return patientId;
+    }
+
+    public int getAppointmentId() {
+        return appointmentId;
+    }
+
+    public Date getDateOfAppointment() {
+        return dateOfAppointment;
+    }
+
+    public Slot getTimeSlot() {
+        return timeSlot;
+    }
+
+    public double getFees() {
+        return fees;
+    }
+
+    @Override
+    public String toString() {
+        return "Appointment#" + appointmentId + "[doctor=" + doctorId + ", patient=" + patientId
+                + ", slot=" + timeSlot + ", fees=" + fees + "]";
+    }
 }

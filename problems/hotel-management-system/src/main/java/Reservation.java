@@ -20,7 +20,7 @@ public class Reservation {
     public synchronized void cancel() {
         if (status == ReservationStatus.CONFIRMED) {
             status = ReservationStatus.CANCELLED;
-            room.checkOut();
+            room.release();
         } else {
             throw new IllegalStateException("Reservation is not confirmed.");
         }

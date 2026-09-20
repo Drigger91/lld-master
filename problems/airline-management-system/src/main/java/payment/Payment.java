@@ -17,4 +17,16 @@ public class Payment {
         // Process payment logic
         status = PaymentStatus.COMPLETED;
     }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public PaymentStatus getStatus() {
+        return status;
+    }
 }

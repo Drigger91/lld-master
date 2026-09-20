@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>social-networking-service</artifactId>
+    <properties>
+        <exec.mainClass>SocialNetworkingServiceMain</exec.mainClass>
+    </properties>
 </project>

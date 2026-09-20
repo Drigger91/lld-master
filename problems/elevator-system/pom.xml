@@ -10,4 +10,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>elevator-system</artifactId>
+    <properties>
+        <exec.mainClass>ElevatorSystemMain</exec.mainClass>
+    </properties>
 </project>

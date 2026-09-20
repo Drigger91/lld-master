@@ -63,7 +63,8 @@ public class LinkedInService {
     public List<User> searchUsers(String keyword) {
         List<User> results = new ArrayList<>();
         for (User user : users.values()) {
-            if (user.getName().contains(keyword) || user.getProfile().getHeadline().contains(keyword)) {
+            String headline = user.getProfile() == null ? null : user.getProfile().getHeadline();
+            if (user.getName().contains(keyword) || (headline != null && headline.contains(keyword))) {
                 results.add(user);
             }
         }

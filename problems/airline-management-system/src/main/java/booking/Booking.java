@@ -24,4 +24,28 @@ public class Booking {
     public void cancel() {
         status = BookingStatus.CANCELLED;
     }
+
+    public String getBookingNumber() {
+        return bookingNumber;
+    }
+
+    public Flight getFlight() {
+        return flight;
+    }
+
+    public Passenger getPassenger() {
+        return passenger;
+    }
+
+    public Seat getSeat() {
+        return seat;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public BookingStatus getStatus() {
+        return status;
+    }
 }

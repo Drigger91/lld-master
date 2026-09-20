@@ -6,5 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PatientRepository {
-    private Map<Integer, Patient> db = new HashMap<>();
+    private final Map<Integer, Patient> db = new HashMap<>();
+
+    public void savePatient(Patient patient) {
+        db.put(patient.getId(), patient);
+    }
+
+    public Patient getPatient(int patientId) {
+        return db.get(patientId);
+    }
 }
