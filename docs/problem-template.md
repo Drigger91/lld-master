@@ -6,7 +6,7 @@ Every folder under `problems/` has exactly this shape:
 problems/<kebab-name>/
 ├── problem.md      # the interview question, requirements, clarifying questions, design hints
 ├── testcases.md    # behaviours that must work: happy paths, edge cases, errors, follow-ups
-├── pom.xml         # module pom; sets <exec.mainClass> so `mvn -q -pl problems/<name> compile exec:java` runs the demo
+├── pom.xml         # module pom; sets <exec.mainClass> so `mvn -q -pl :<name> compile exec:java` runs the demo
 └── src/main/java   # the solution + a runnable <Name>Main demo
 ```
 
@@ -25,8 +25,15 @@ problems/<kebab-name>/
 ## Functional requirements
 Numbered list. What the system must do.
 
-## Non-functional requirements & constraints
-Concurrency, scale assumptions, in-memory vs persistent, etc. Keep it honest to what the code does.
+## Non-functional requirements
+Concurrency, extensibility, in-memory vs persistent. Keep it honest to what the reference solution does.
+
+## Constraints
+The bounds and givens of the problem, the way a LeetCode "Constraints" block reads. Concrete and checkable:
+- Scale bounds: `1 <= levels <= 10`, `<= 1000 spots per level`, "a few hundred users".
+- Fixed vocabularies: "exactly three vehicle types: MOTORCYCLE, CAR, TRUCK"; "denominations are 1, 5, 10, 25".
+- Invariants the solution must never violate: "a spot holds at most one vehicle"; "balance never goes negative".
+- Scope limits: "no payments", "single JVM", "no persistence", "no real time — the caller drives the clock".
 
 ## Clarifying questions to ask
 Bullet list of "Q — assumed answer". These are the questions that shape the design.
@@ -40,7 +47,7 @@ Short list: `Entity` — one-line responsibility. Match the actual classes in `s
 - Common mistakes.
 
 ## Run
-mvn -q -pl problems/<name> compile exec:java
+mvn -q -pl :<name> compile exec:java
 ```
 
 ## testcases.md

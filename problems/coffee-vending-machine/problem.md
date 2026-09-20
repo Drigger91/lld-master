@@ -15,11 +15,20 @@ Design a coffee vending machine that offers a fixed menu of drinks. Each drink i
 5. Print a low-inventory alert whenever an ingredient's quantity drops below 3 after a dispense.
 6. There is one machine instance, pre-configured with ingredients (Coffee, Water, Milk — 10 units each) and a menu (Espresso, Cappuccino, Latte).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory; menu and ingredient stock are hard-coded in the singleton constructor (eager initialisation). There is no public API to restock or add menu items.
 - `selectCoffee` and `dispenseCoffee` are `synchronized` on the machine, so concurrent customers cannot over-consume ingredients; `Ingredient.updateQuantity` is also synchronized.
 - Payment is a single upfront `Payment(amount)`; no coin/note modelling, no multi-step payment.
 - Results are reported via `System.out`; `dispenseCoffee` returns `void`.
+
+## Constraints
+- The menu is exactly three drinks with fixed prices and recipes: Espresso ($2.5 — 1 Coffee, 1 Water), Cappuccino ($3.5 — 1 Coffee, 1 Water, 1 Milk), Latte ($4.0 — 1 Coffee, 1 Water, 2 Milk).
+- Exactly three ingredients — `Coffee`, `Water`, `Milk` — each starting at 10 integer units; recipe quantities are positive `int`s.
+- An ingredient's quantity is never negative: a drink is dispensed only if **every** recipe entry is satisfied, and consumption is all-or-nothing.
+- Because every drink uses 1 unit of Coffee and there is no restock API, the machine can dispense at most 10 drinks in its lifetime.
+- The low-stock threshold is fixed at `< 3` units and is evaluated per ingredient immediately after each dispense.
+- `Payment.amount` is a non-negative `double`; change is `amount - price` and is never negative; the machine is assumed to always have change.
+- Drink names are unique in the menu (compared case-insensitively) and lookups are a linear scan over `<= 10` items; single JVM, one machine.
 
 ## Clarifying questions to ask
 - Is the menu fixed or configurable at runtime? — Fixed at construction.
@@ -42,4 +51,6 @@ Design a coffee vending machine that offers a fixed menu of drinks. Each drink i
 - Probable follow-ups: adding new drinks without editing the singleton (Builder / config), a `State` machine for select → pay → dispense, and a restock API with an `Observer` for low-stock alerts.
 
 ## Run
-mvn -q -pl problems/coffee-vending-machine compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :coffee-vending-machine compile exec:java` |

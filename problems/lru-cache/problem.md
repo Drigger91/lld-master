@@ -14,11 +14,20 @@ Design an in-memory key-value cache with a fixed capacity that evicts the least 
 4. When an insert would exceed capacity, the least recently used entry is evicted.
 5. Keys and values are generic (`K`, `V`).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - `get` and `put` are O(1); memory is O(capacity).
 - Thread-safe via `synchronized` on both public methods (coarse lock; no lock striping).
 - No TTL, no size-based weighting, no eviction callbacks, no persistence.
 - `null` is used as the "miss" sentinel, so `null` values are indistinguishable from misses.
+
+## Constraints
+- `1 <= capacity <= 10^6`; the constructor does not validate it (capacity `0` evicts every entry immediately, a negative capacity throws from `HashMap`).
+- `size <= capacity` holds whenever `put` returns; after `capacity` distinct inserts the cache is full and every further new key evicts exactly one entry.
+- The hash map and the linked list always hold the same key set: every non-sentinel node is reachable from `head`, and every map entry points at a node in the list.
+- Keys must be non-`null` with consistent `equals`/`hashCode`; values must be non-`null` (see the `null`-miss sentinel above).
+- Only two operations exist — `get(key)` and `put(key, value)` — up to roughly `10^6` calls; there is no `remove`, `size`, `containsKey`, `clear` or iteration.
+- Eviction is exact LRU by access order: the evicted entry is always the one whose most recent `get`/`put` is oldest; because both methods are serialised, no two accesses are simultaneous.
+- Single JVM, in-process; entries never expire and the only bound on memory is `capacity`.
 
 ## Clarifying questions to ask
 - Does a `get` count as use? — Yes; a `get` or `put` of an existing key moves it to most-recent.
@@ -40,4 +49,6 @@ Design an in-memory key-value cache with a fixed capacity that evicts the least 
 - Java one-liner alternative interviewers may accept and then probe: `LinkedHashMap` with `accessOrder=true` and `removeEldestEntry`.
 
 ## Run
-mvn -q -pl problems/lru-cache compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :lru-cache compile exec:java` |

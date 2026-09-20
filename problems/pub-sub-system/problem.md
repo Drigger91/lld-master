@@ -16,12 +16,20 @@ Design an in-process publish–subscribe messaging system. Publishers send messa
 6. After unsubscribing, a subscriber receives no further messages from that topic.
 7. Subscribers are notified through a single callback (`onMessage`) so any consumer can plug in.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - Purely in-memory and in-process; no persistence, no message history, no replay for late subscribers.
 - Delivery is synchronous on the publisher's thread, in subscriber-iteration order; there is no ordering guarantee across topics and no retry.
 - `Topic` uses a `CopyOnWriteArraySet`, so subscribe/unsubscribe during a publish is safe and never throws; a subscriber added mid-publish is not guaranteed to receive that message.
-- A subscriber subscribing twice to the same topic is deduplicated (set semantics); duplicate messages are not.
 - `Publisher.registerTopic` is not thread-safe (plain `HashSet`).
+
+## Constraints
+- A `Message` is exactly one `String content`; no headers, keys, priorities, timestamps or message ids.
+- Topics are constructed directly by callers (`new Topic(name)`); there is no broker or registry, and names are not checked for uniqueness, so two `Topic("A")` instances are two independent channels.
+- A subscriber appears at most once in a topic's subscriber set (set semantics on the `Subscriber` reference); the same `Message` published twice is delivered twice.
+- Every current subscriber of a topic receives every message published to it; there is no filtering, partitioning or per-subscriber selection.
+- A publisher may publish only to `Topic` objects it has passed to `registerTopic`; the check is on object identity, not on topic name.
+- Scale: a handful of topics, publishers and subscribers in one JVM (the demo uses 2 topics, 2 publishers, 3 subscribers); no queue depth, buffering or backpressure — a message is delivered during `publish` or not at all.
+- Single process only: no network transport, serialization or cross-JVM delivery.
 
 ## Clarifying questions to ask
 - Push or pull delivery? — Push: the topic calls `subscriber.onMessage(message)` directly.
@@ -45,4 +53,6 @@ Design an in-process publish–subscribe messaging system. Publishers send messa
 - Common mistakes: iterating a plain `ArrayList` while a subscriber unsubscribes inside `onMessage` (`ConcurrentModificationException`); forgetting that a subscriber on two topics gets both streams; letting one subscriber's exception stop delivery to the rest.
 
 ## Run
-mvn -q -pl problems/pub-sub-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :pub-sub-system compile exec:java` |

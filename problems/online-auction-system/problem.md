@@ -16,12 +16,21 @@ Design an online auction platform like eBay. Sellers list an item with a startin
 6. Expose status, current highest bid, highest bidder and the list of accepted bids.
 7. Notify interested parties on new highest bid and on close (hook present, not implemented).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory; `AuctionSystem` is a singleton with `ConcurrentHashMap` registries.
 - `placeBid` and `closeAuction` are `synchronized` on the listing, so concurrent bids on one item are serialised and a bid can never be accepted after close.
 - Bid history is a `CopyOnWriteArrayList` (safe to iterate while bids arrive).
 - Closing uses one daemon `java.util.Timer` per listing that cancels itself after firing.
-- Rejected bids are not stored; prices are `double`.
+
+## Constraints
+- Exactly two statuses: `ACTIVE`, `CLOSED` (`AuctionStatus`); the only transition is `ACTIVE -> CLOSED`, taken at most once and only by the timer.
+- A listing starts with `currentHighestBid == startingPrice` and `currentHighestBidder == null`; each accepted bid is strictly greater than the previous highest, so the bid list is strictly increasing in amount and its last element is always the winner.
+- No bid is accepted once `CLOSED`; a listing that closes with no bids has a `null` winner and its highest bid still equals the starting price.
+- Duration is a non-negative `long` in milliseconds on the real wall clock (`java.util.Timer`); there is no injectable clock, so tests must wait for it to elapse.
+- Prices and bid amounts are `double` with no minimum increment; rejected bids are not stored.
+- Keyword search is a case-sensitive substring match on item name or description, with no ranking or pagination.
+- User, listing and bid ids are caller-supplied strings and must be unique; registering the same id again overwrites.
+- Single JVM, no persistence, tens of listings (one timer thread each); no payment or settlement after close, and `notifyObservers` is a no-op hook.
 
 ## Clarifying questions to ask
 - Must a bid beat the current highest by a minimum increment? — No, strictly greater is enough.
@@ -46,4 +55,6 @@ Design an online auction platform like eBay. Sellers list an item with a startin
 - Common mistakes: `>=` instead of `>` when comparing bids; checking status outside the lock; using `double` for money; never cancelling timers; storing rejected bids.
 
 ## Run
-mvn -q -pl problems/online-auction-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :online-auction-system compile exec:java` |

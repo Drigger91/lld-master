@@ -15,12 +15,22 @@ Design the back-office system for a single restaurant. Staff maintain a menu, ta
 5. Record a `Payment` (amount, `PaymentMethod`, `PaymentStatus`).
 6. Add and remove `Staff` (id, name, role, contact).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory; single restaurant; `Restaurant` is a process-wide singleton.
 - Collections are thread-safe (`CopyOnWriteArrayList` for menu/reservations/staff, `ConcurrentHashMap` for orders/payments), but there is no cross-entity transaction (e.g. payment is not linked to an order).
 - `getMenu()` returns a defensive copy.
 - Status transitions are not validated — any status can be set at any time.
 - Kitchen/staff notification, payment gateway integration and table assignment are stubs (`notifyKitchen`, `notifyStaff`, `processPayment` comments).
+
+## Constraints
+- Scale: one venue — a menu of at most a few hundred `MenuItem`s and orders, reservations and staff in the hundreds; menu/reservation/staff lookups are linear, orders and payments are keyed by `int` id.
+- Fixed vocabularies: `OrderStatus { PENDING, PREPARING, READY, COMPLETED, CANCELLED }`, `PaymentMethod { CASH, CREDIT_CARD, MOBILE_PAYMENT }`, `PaymentStatus { PENDING, COMPLETED, FAILED }`.
+- Ids are caller-supplied `int`s. Order and payment ids must be unique (`Map.put` silently overwrites); menu items, reservations and staff have no uniqueness check and the same item can be added twice.
+- `MenuItem.price` and `Order.totalAmount` are caller-supplied `double`s; the total is never recomputed from the items and `>= 0` is not enforced.
+- Only `Order.status` is mutable; `MenuItem`, `Reservation`, `Payment` and `Staff` are immutable once constructed — a `Payment` created as `PENDING` stays `PENDING` forever.
+- `removeMenuItem`, `cancelReservation` and `removeStaff` remove by object identity (no `equals`/`hashCode`): the exact instance passed to `add` must be passed to remove, otherwise the call is a silent no-op.
+- `updateOrderStatus` on an unknown order id is a silent no-op; no public method throws.
+- Single JVM, no real clock — `Order.timestamp` and `Reservation.reservationTime` are caller-supplied `Timestamp`s that are stored but never compared.
 
 ## Clarifying questions to ask
 - Is the order total computed from items or supplied? — Assumed: supplied by the caller in the `Order` constructor.
@@ -46,4 +56,6 @@ Design the back-office system for a single restaurant. Staff maintain a menu, ta
 - Common mistakes: recalculating totals inconsistently (item prices vs supplied total); removing a `MenuItem` that is referenced by an open order; no link between `Payment` and `Order` so refunds/reconciliation are impossible; `removeMenuItem` relies on object identity because `MenuItem` has no `equals`.
 
 ## Run
-mvn -q -pl problems/restaurant-management-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :restaurant-management-system compile exec:java` |

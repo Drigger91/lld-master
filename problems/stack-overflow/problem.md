@@ -17,13 +17,21 @@ Design a simplified Stack Overflow. Users register and log in, post questions ta
 7. List questions posted by a given user.
 8. Comments on questions and answers are part of the model but posting them is not implemented (`postComment` is a stub).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory only; a `StackOverflow` Singleton holds users, questions and a tag → questions index.
 - Passwords are stored and compared in plain text (interview simplification).
 - Vote count and reputation updates are guarded by `synchronized` on the question/answer/user object; maps are `ConcurrentHashMap`, but the per-tag lists are plain `ArrayList`s and `getQuestionsByTag` returns the live list.
 - Search is a linear, case-sensitive `contains` scan over all questions.
-- No vote-per-user tracking: the same user can vote repeatedly and can vote on their own post.
 - `User`, `Question` and `Answer` use reference identity (no `equals`/`hashCode` overrides).
+
+## Constraints
+- Ids for users, questions, answers and tags are caller-supplied `int`s; `registerUser` and `postQuestion` key on that id and silently overwrite an existing entry, and usernames are not checked for uniqueness (`loginUser` returns the first match, or `null`).
+- A vote is a signed `int` applied verbatim: `voteCount += value` and `author.reputation += value`; the code does not restrict `value` to ±1 and reputation may go negative.
+- No vote-per-user tracking: the same user can vote repeatedly and can vote on their own post.
+- An answer belongs to exactly one question (`Answer.question` is `final`) and is appended to that question's `answers` list; a question's tags are fixed at construction.
+- The tag index is keyed by `Tag.name` with case-sensitive exact match; `Tag.id` plays no part in lookup, and a question is indexed once per tag it carries.
+- `Comment` has no constructor or accessors and `postComment` is a no-op; accepted answers, editing/deleting posts, sessions or tokens after login, badges and view counts are out of scope.
+- Scale: hundreds of users and thousands of questions in a single JVM.
 
 ## Clarifying questions to ask
 - Can a user vote more than once on the same post? — Not prevented in this version; discuss tracking (user, post) pairs.
@@ -49,4 +57,6 @@ Design a simplified Stack Overflow. Users register and log in, post questions ta
 - Common mistakes: returning the internal list from `getQuestionsByTag`; relying on reference equality for `getQuestionsByUser`; not validating that a username is unique on `registerUser`; allowing a `vote` value other than ±1.
 
 ## Run
-mvn -q -pl problems/stack-overflow compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :stack-overflow compile exec:java` |

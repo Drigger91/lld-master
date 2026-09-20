@@ -16,12 +16,22 @@ Design a professional networking service like LinkedIn. Users register with a pr
 6. Send a direct message from one user to another; it lands in the receiver's inbox and the sender's sent list.
 7. Notify users on `CONNECTION_REQUEST`, `MESSAGE` and `JOB_POSTING` events, and allow a user to fetch their notifications.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory only; no persistence, no real authentication (plaintext password equality).
 - A single `LinkedInService` instance serves the whole process (singleton).
 - Registries (`users`, `jobPostings`, `notifications`) are `ConcurrentHashMap`s and notification lists are `CopyOnWriteArrayList`s so concurrent reads/writes do not corrupt them. Per-user lists (connections, inbox) are plain `ArrayList`s and are not synchronised.
 - Search is a linear substring scan (case-sensitive); no indexing or ranking.
 - Job postings are broadcast to every registered user (O(users) per posting).
+
+## Constraints
+- Scale: tens to a few thousand users and job postings per process; every login, search and job fan-out is a full linear scan of `users`, which is acceptable at that size.
+- Fixed vocabulary: `NotificationType { CONNECTION_REQUEST, MESSAGE, JOB_POSTING }` — every `Notification` carries exactly one of these.
+- User ids and job-posting ids are caller-supplied `String`s and must be unique; `registerUser`, `updateUserProfile` and `postJobListing` with an existing id silently replace the old record (`Map.put`). Message and notification ids are generated `UUID`s.
+- A `User` has exactly one `Profile`, which may be `null` until set; `Profile.headline` and `summary` may be `null` and `searchUsers` must tolerate that.
+- `loginUser` matches on exact email + password equality and returns at most one `User` (the first match) or `null`.
+- Connections are directed, per-user records: `sendConnectionRequest(a, b)` appends one `Connection(a)` to `b`; `acceptConnectionRequest(b, a)` appends a second `Connection(a)` to `b` only if the first exists. `a`'s own list is never touched, and nothing prevents duplicate requests or self-connections.
+- Timestamps come from `System.currentTimeMillis()` with no injectable clock; tests must not assert on exact times or ordering across calls.
+- Single JVM; there is no e-mail/push delivery — a notification exists only as a record in the target user's list.
 
 ## Clarifying questions to ask
 - Is a connection request a separate pending state, or is it recorded directly? — Assumed: the request is stored as a `Connection` on the receiver; accepting adds a second `Connection` record (there is no explicit PENDING/ACCEPTED status).
@@ -47,4 +57,6 @@ Design a professional networking service like LinkedIn. Users register with a pr
 - Common mistakes: NPE when a search touches an optional field such as `Profile.headline` (guard nulls); treating "connection request" and "accepted connection" as the same record makes it impossible to list pending requests — a `ConnectionStatus` enum is the usual fix; mutable shared `ArrayList`s on `User` are not thread-safe.
 
 ## Run
-mvn -q -pl problems/linkedin compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :linkedin compile exec:java` |

@@ -15,13 +15,23 @@ Design the core of an airline reservation system. The airline operates a fleet o
 5. Track seat status (`AVAILABLE`, `RESERVED`, `OCCUPIED`) via `Seat.reserve()` / `Seat.release()`.
 6. Process a `Payment`, moving it from `PENDING` to `COMPLETED`.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory; no persistence.
 - `BookingManager` and `PaymentProcessor` are singletons; `AirlineManagementSystem` is an ordinary facade object that composes them.
 - Booking numbers are `"BKG" + yyyyMMddHHmmss + 6-digit counter` from an `AtomicInteger`, so they are unique within a process.
 - `BookingManager` guards its `HashMap` with an explicit lock object; `flights`/`aircrafts` lists are plain `ArrayList`s and not thread-safe.
 - Seat allocation is not enforced by the system: the caller reserves the `Seat` object and passes it in; there is no check that the seat belongs to the flight or is available. `Flight.availableSeats` exists but is never populated.
 - Payment processing always succeeds; there is no gateway and no linkage between `Payment` and `Booking`.
+
+## Constraints
+- Scale: tens of aircraft, hundreds of flights and thousands of bookings per process; `searchFlights` is a full linear scan of `flights`.
+- Fixed vocabularies: `BookingStatus { CONFIRMED, CANCELLED, PENDING, EXPIRED }`, `SeatStatus { AVAILABLE, RESERVED, OCCUPIED }`, `SeatType { ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST_CLASS }`, `PaymentStatus { PENDING, COMPLETED, FAILED, REFUNDED }`. The code only ever sets `CONFIRMED`/`CANCELLED`, `AVAILABLE`/`RESERVED` and `PENDING`/`COMPLETED`.
+- Booking invariant: a `Booking` is `CONFIRMED` at construction and its only transition is `cancel()` -> `CANCELLED`; cancelling twice or cancelling an unknown booking number is a silent no-op.
+- Seat invariant: `reserve()` sets `RESERVED` and `release()` sets `AVAILABLE` unconditionally (no guard, no exception); `OCCUPIED` is never set. Seat numbers are free-form strings and are not checked against `Aircraft.totalSeats`.
+- Payment: created `PENDING`, `processPayment` moves it to `COMPLETED`; `paymentMethod` is a free-form `String` (not an enum) and `amount` is not validated.
+- Search: `source`/`destination` are compared with `equalsIgnoreCase`, date by `departureTime.toLocalDate()` equality, and all three must match; `null` arguments throw `NullPointerException`.
+- Booking numbers are `"BKG" + yyyyMMddHHmmss + %06d` (23 characters) from `LocalDateTime.now()` and a counter starting at 0 — the fixed width holds for at most 999,999 bookings per process, and there is no injectable clock.
+- Single JVM; `Aircraft` is registered but never linked to a `Flight` — `totalSeats` is informational only, and `Flight.availableSeats` stays empty.
 
 ## Clarifying questions to ask
 - Does booking a flight also reserve the seat and take payment atomically? — Assumed: no; `bookFlight`, `Seat.reserve()` and `processPayment` are separate calls made by the client.
@@ -50,4 +60,6 @@ Design the core of an airline reservation system. The airline operates a fleet o
 - Common mistakes: searching by `LocalDateTime` equality instead of date; forgetting that `HashMap` needs external locking; exposing mutable lists; never populating `Flight.availableSeats`.
 
 ## Run
-mvn -q -pl problems/airline-management-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :airline-management-system compile exec:java` |

@@ -74,4 +74,4 @@ Mention these in the last 5 minutes even if not asked; they separate mid from se
 1. Read `problem.md` **only up to "Clarifying questions"**. Set a 45-minute timer and design + code it yourself.
 2. Compare with `testcases.md` — every row is a behaviour your design must support. Tick them off.
 3. Only then read "Design hints" and the reference solution in `src/`. Note the differences; they're the learning.
-4. Run the demo: `mvn -q -pl problems/<name> compile exec:java`.
+4. Run the demo: `mvn -q -pl :<name> compile exec:java`.

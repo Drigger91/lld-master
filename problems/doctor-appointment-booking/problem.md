@@ -16,11 +16,20 @@ Design a system that lets patients book appointments with doctors. Doctors regis
 6. Reject a booking of an already-booked slot or of a slot the doctor never offered.
 7. Cancel an appointment by id: the slot returns to the free list; cancelling an unknown appointment fails.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory repositories (`HashMap`s); ids are static counters in `Environment`.
 - `Doctor.bookAppointment` and `cancelAppointment` are `synchronized` on the doctor, so two patients racing for the same slot of one doctor are serialised.
 - Dates are `java.util.Date` keys (compared by millisecond value) and slot times are `LocalDateTime`; a `Slot` is equal to another when start time and duration match.
 - Fees are captured on the appointment at booking time.
+
+## Constraints
+- Exactly four specialities: `GENERAL_PHYSICIAN`, `OPTHALMOLOGIST`, `ORTHOPAEDIAC`, `DENTIST` (`Speciality`); search matches one speciality exactly and never filters by city.
+- Slot duration is a positive whole number of minutes and `endTime - startTime` must be an exact multiple of it: `addSlotsForDate` walks `while (!start.isEqual(end))` and never terminates otherwise.
+- Once published, each slot of a (doctor, date) is in exactly one of `availableSlots` or `bookedSlots`, never both and never neither, so a slot holds at most one appointment.
+- Every `Appointment` corresponds to exactly one booked slot; cancelling frees the slot and deletes the appointment, so `AppointmentRepository` only ever holds live bookings.
+- Ids are sequential `int`s starting at 1 with independent counters for doctors, patients and appointments.
+- No real clock: the caller supplies the `Date` and the slot `LocalDateTime`s; nothing rejects a slot in the past or a booking `Date` that differs from the slot's own day.
+- Small scale: tens of doctors and a handful of slots per day; single JVM, no persistence.
 
 ## Clarifying questions to ask
 - Can a doctor edit slots after publishing them? — No, `addSlotsForDate` is one-shot per date.
@@ -48,4 +57,6 @@ Design a system that lets patients book appointments with doctors. Doctors regis
 - Common mistakes: writing the free list into the booked map (and vice versa) when swapping; mutable `Date` as a map key; generating slots with `while (!start.equals(end))`, which loops forever if the end is not a multiple of the duration; returning the internal slot list and letting callers mutate it.
 
 ## Run
-mvn -q -pl problems/doctor-appointment-booking compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :doctor-appointment-booking compile exec:java` |

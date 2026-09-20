@@ -15,12 +15,22 @@ Design a ticket booking system for concerts. Each concert has a venue, date and 
 5. Cancel a booking by id: status becomes `CANCELLED`, its seats return to `AVAILABLE`, and the booking is removed.
 6. Track seat status (`AVAILABLE`, `BOOKED`, `RESERVED`) and booking status (`PENDING`, `CONFIRMED`, `CANCELLED`).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory; `ConcertTicketBookingSystem` is a process-wide singleton.
 - `bookTickets` runs inside a single global lock so the availability check and the seat state change are atomic across all seats in the request; `Seat.book()`/`release()` are additionally `synchronized`.
 - `concerts` and `bookings` are `ConcurrentHashMap`s.
 - Payment is a no-op stub that always succeeds; there is no timeout for `PENDING` bookings and `RESERVED` is never set by the code.
 - Search requires an exact `LocalDateTime` match (to the nanosecond), not a date.
+
+## Constraints
+- Scale: tens of concerts, each with `1 <= seats <= a few thousand` (the demo uses 100 and 50); one booking requests `1 <= seats.size() <= concert.seats.size()`, and every request is checked seat-by-seat under the global lock.
+- Fixed vocabularies: `SeatType { REGULAR, PREMIUM, VIP }`, `SeatStatus { AVAILABLE, BOOKED, RESERVED }`, `BookingStatus { PENDING, CONFIRMED, CANCELLED }`.
+- Seat invariant: a seat is `BOOKED` by at most one live booking; `Seat.book()` throws `SeatNotAvailableException` unless the seat is `AVAILABLE`, and `release()` only moves `BOOKED -> AVAILABLE`.
+- Booking invariant: the lifecycle is strictly `PENDING -> CONFIRMED -> CANCELLED`; `confirmBooking()` is a no-op unless `PENDING`, `cancelBooking()` a no-op unless `CONFIRMED`. A cancelled booking is removed from the registry, so cancelling the same id twice is a no-op.
+- `Booking.totalPrice` is the sum of `Seat.price` (a `double`) at construction and never changes; `price >= 0` is the caller's responsibility, and there are no fees, discounts or currencies.
+- Booking ids are generated (`"BKG" + UUID`) and unique per process; concert and user ids are caller-supplied `String`s, and `addConcert` with an existing id silently overwrites.
+- Seats are passed by reference: the caller must pass the `Concert`'s own `Seat` instances, and the list must not contain the same seat twice — the system does not check ownership, and a duplicate passes the availability check and then throws midway through `book()`, leaving earlier seats `BOOKED`.
+- Single JVM, no real clock: `Concert.dateTime` is never compared with "now", so past concerts remain bookable.
 
 ## Clarifying questions to ask
 - Is booking all-or-nothing when several seats are requested? — Assumed: yes; if any seat is unavailable, no seat is booked.
@@ -45,4 +55,6 @@ Design a ticket booking system for concerts. Each concert has a venue, date and 
 - Common mistakes: booking seats one by one and leaving partial bookings on failure; comparing `LocalDateTime.now()`-derived values in search (they never match); forgetting to release seats on cancel; removing the booking from the map but leaving seats `BOOKED`; using `RESERVED` without an expiry.
 
 ## Run
-mvn -q -pl problems/concert-ticket-booking-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :concert-ticket-booking-system compile exec:java` |

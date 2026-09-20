@@ -15,13 +15,20 @@ Design a library's book-lending system. The library keeps a catalog of books and
 5. Search the catalog by a keyword matched against title or author.
 6. Report the outcome of borrow/return operations (printed messages in the reference code).
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - `LibraryManager` is a singleton; catalog and members live in `ConcurrentHashMap`s in memory.
 - `borrowBook` and `returnBook` are `synchronized` so the availability check and the flag flip are atomic.
-- One physical copy per ISBN (availability is a single boolean on `Book`).
 - Search is case-sensitive substring matching.
 - A `LOAN_DURATION_DAYS` (14) constant exists but due dates and fines are not implemented.
 - Operations report through `System.out` rather than return values or exceptions.
+
+## Constraints
+- `0 <= member.borrowedBooks.size() <= MAX_BOOKS_PER_MEMBER` (5) at all times; the limit is one library-wide constant, not per member type.
+- One physical copy per ISBN: `Book.available` is a single boolean, so a book is either on the shelf or held by exactly one member, never both.
+- Books are keyed by ISBN and members by member id, both caller-supplied strings; adding an existing key silently replaces the entry.
+- Catalog of hundreds to a few thousand books and hundreds of members; `searchBooks` is a linear scan over the catalog with no index.
+- Single JVM, no real clock: nothing in the model reads the current date, so borrowing and returning are instantaneous flag flips with no loan duration in practice.
+- Removal is unguarded: `removeBook` and `unregisterMember` do not check for outstanding loans, so a borrowed book can leave the catalog while still in a member's list.
 
 ## Clarifying questions to ask
 - Multiple copies of the same book? — No, one copy per ISBN.
@@ -44,4 +51,6 @@ Design a library's book-lending system. The library keeps a catalog of books and
 - Common mistakes: singleton state leaking between tests; printing instead of returning results; forgetting the borrow limit; case-sensitive search when users expect case-insensitive; `List.remove(Object)` relying on `equals` (works here only because the same `Book` instance is used).
 
 ## Run
-mvn -q -pl problems/library-management-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :library-management-system compile exec:java` |

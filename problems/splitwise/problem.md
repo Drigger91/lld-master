@@ -16,11 +16,20 @@ Design an expense-sharing application like Splitwise. A user can add an expense 
 6. Show balances: a list of "X owes Y amount" lines for every outstanding pair (net of both directions).
 7. Settle up: a user pays another user an amount, which must be positive and no more than what they currently owe that user.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory only; users, groups and expenses live in maps and lists.
 - Amounts are `double` but every strategy allocates in whole paise so the shares add up exactly (e.g. 100 / 3 = 33.34 + 33.33 + 33.33).
 - Single-threaded demo; `UserService` and `GroupService` use `ConcurrentHashMap` but the `BalanceSheet` itself is not synchronized.
-- Balances are pairwise (no debt simplification across three or more users).
+
+## Constraints
+- Exactly three split types: `EQUAL`, `EXACT`, `PERCENT` (`SplitType`); `SplitService` rejects anything else.
+- Expense total > 0, at least one participant, and every split value (EXACT amount or PERCENT percentage) > 0; every resulting `Split` amount is > 0.
+- EXACT amounts must sum to the total and PERCENT values to 100, each within a 0.01 tolerance; `Expense` independently re-checks that its splits sum to the total.
+- Single currency with two decimal places; a pairwise balance with absolute value <= 0.005 (`EPS`) counts as settled.
+- A group has a non-blank name and >= 2 members (no upper bound); the payer and every participant of a group expense must be members.
+- Ledger invariant: `sheet[A][B] == -sheet[B][A]` at all times; a settlement must be > 0 and <= what the payer currently owes the payee, so settling never flips who owes whom.
+- Balances are pairwise only: no debt simplification across three or more users, and no aggregation across groups.
+- Small scale: a few users per group and tens of expenses; lookups are linear scans, nothing is indexed or persisted.
 
 ## Clarifying questions to ask
 - Does the payer also consume a share? — Yes if they are in the participant list; their own share is simply not recorded as a debt.
@@ -52,4 +61,6 @@ Design an expense-sharing application like Splitwise. A user can add an expense 
 - Common mistakes: validating splits only in one strategy; storing only one direction of the ledger; letting a settlement overshoot and silently reverse the debt; comparing `User` objects by reference instead of id.
 
 ## Run
-mvn -q -pl problems/splitwise compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :splitwise compile exec:java` |

@@ -16,11 +16,18 @@ Design the control software for a building with N elevators. Passengers press a 
 6. An idle elevator must block (not busy-wait) until a new request arrives, and must stop cleanly when interrupted.
 7. A caller can wait until every elevator is idle (`awaitIdle()`), which is how the demo terminates.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - Each elevator runs on its own daemon thread; the caller thread must never be blocked by an elevator that is *not* serving its request.
 - Floor movement is simulated with a 1-second sleep per floor, so the demo takes ~45 s to run.
-- All state is in memory; there are no floors/buttons modelled beyond integers.
 - The elevator monitor is held while the car is moving, so `addRequest` to a moving elevator blocks until that elevator finishes its current trip (a known simplification, see design hints).
+
+## Constraints
+- `numElevators >= 1` and `capacity >= 1` are fixed at construction (the demo uses 3 cars with capacity 5); cars are numbered `1..numElevators` and every car starts at floor 1.
+- Floors are plain positive `int`s with no upper bound and no validation; `sourceFloor == destinationFloor` is legal and produces no movement.
+- `capacity` bounds the *pending requests per car*, not passengers: a request that arrives when the car's queue is full is silently dropped, never queued elsewhere or retried.
+- Direction vocabulary is exactly `Direction.UP` and `Direction.DOWN` (no `IDLE`); an idle car keeps its last direction, initially `UP`.
+- A request is served by exactly one car, in the order it was queued; once dispatched it is never moved to another car.
+- Single JVM, in memory only: floors are integers and nothing else of the building is modelled (no doors, buttons, weight or passenger count) and nothing is persisted.
 
 ## Clarifying questions to ask
 - How many elevators and floors? — Configurable elevator count; floors are plain ints with no bounds check.
@@ -44,4 +51,6 @@ Design the control software for a building with N elevators. Passengers press a 
 - Common mistakes: busy-waiting instead of `wait/notify`; non-daemon threads that keep the JVM alive; forgetting that `Thread.sleep` inside a `synchronized` block holds the lock; ignoring the source floor entirely (the reference code does — call it out as the first thing you would fix).
 
 ## Run
-mvn -q -pl problems/elevator-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :elevator-system compile exec:java` |

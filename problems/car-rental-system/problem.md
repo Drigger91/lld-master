@@ -15,12 +15,21 @@ Design a car rental service. The company keeps a fleet of cars, customers search
 5. Process payment for a reservation through a pluggable payment processor.
 6. Cancel a reservation by id, making the car available again.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - `RentalSystem` is a process-wide singleton holding cars and reservations in `ConcurrentHashMap`s; nothing is persisted.
 - `makeReservation` and `cancelReservation` are `synchronized` so concurrent bookings cannot double-book.
 - The payment processor is fixed to `CreditCardPaymentProcessor` at construction; the `PayPalPaymentProcessor` exists but is not wired in.
 - Both payment processors are stubs that always return `true`.
 - A reserved car is flagged `available = false` until cancellation, which hides it from *all* searches, not just overlapping dates (a simplification to discuss).
+
+## Constraints
+- Fleet and booking volume are small — tens of cars and hundreds of reservations — so `searchCars` and `isCarAvailable` scan every car and every reservation linearly.
+- A car is identified by its licence plate; `addCar` with an existing plate silently replaces the earlier car.
+- Dates are `LocalDate`s at day granularity (no times, no time zones); `startDate <= endDate` is assumed and never validated, and a same-day rental counts as one day.
+- Invariant: the reservation registry never holds two reservations for the same car whose ranges overlap (`start < existing.end && end > existing.start`).
+- Exactly two `PaymentProcessor` implementations, `CreditCardPaymentProcessor` and `PayPalPaymentProcessor`; amounts are `double` and there is no payment status, refund or partial payment.
+- Reservation ids are `RES` + 8 uppercase hex characters from a UUID; a reservation has no status — it is either in the registry or removed by cancellation (no history).
+- Single location, single JVM: no pickup/return branches, no customer registry (a `Customer` is a plain value handed to `makeReservation`), and no real clock — the caller supplies every date.
 
 ## Clarifying questions to ask
 - One location or many? — Single location; no pickup/return branches.
@@ -45,4 +54,6 @@ Design a car rental service. The company keeps a fleet of cars, customers search
 - Common mistakes: off-by-one in day counting; exclusive vs. inclusive end dates; overlap conditions that miss containment; `double` for money; returning `null` instead of an explicit result/exception.
 
 ## Run
-mvn -q -pl problems/car-rental-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :car-rental-system compile exec:java` |

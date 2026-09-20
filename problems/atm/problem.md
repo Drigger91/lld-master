@@ -15,11 +15,18 @@ Design the software for an ATM. A customer inserts a card, authenticates, and ca
 5. Every withdrawal or deposit is recorded as a `Transaction` with a unique id and executed through the bank.
 6. The cash dispenser refuses to dispense more cash than it holds.
 
-## Non-functional requirements & constraints
-- In-memory only: accounts live in a `ConcurrentHashMap` inside `BankingService`; nothing is persisted.
+## Non-functional requirements
 - `CashDispenser.dispenseCash` is `synchronized`, so concurrent withdrawals cannot over-dispense the machine's cash.
 - Transaction ids are unique per JVM (timestamp + `AtomicLong` counter).
 - Authentication is a stub in the reference code (`authenticateUser` does nothing); balances are `double` and `Account.debit` does not check for overdraft. Both are deliberate simplifications to discuss, not features.
+
+## Constraints
+- Exactly two transaction types, as subclasses of the abstract `Transaction`: `WithdrawalTransaction` (debit) and `DepositTransaction` (credit); there is no transfer and no transaction-type enum.
+- Money is a `double` on accounts and an `int` in the dispenser; a withdrawal amount is cast to `int` before dispensing, so whole-unit amounts are assumed and no denominations are modelled (one cash total).
+- `CashDispenser.cashAvailable >= 0` always: a withdrawal larger than the reserve throws `IllegalArgumentException` and dispenses nothing (the demo machine starts with 10,000).
+- One card maps to one account: the card number *is* the account number, and the PIN is a string that is never checked.
+- One ATM and a handful of accounts (the demo creates two); there is no session or "card inserted" state — every operation takes the account number explicitly.
+- Single JVM, in memory only: accounts live in a `ConcurrentHashMap` inside `BankingService`, nothing is persisted, there is no network bank, and the real clock is used only to stamp transaction ids.
 
 ## Clarifying questions to ask
 - Does the ATM own the accounts or does a bank? — A separate `BankingService` owns accounts; the ATM only orchestrates.
@@ -45,4 +52,6 @@ Design the software for an ATM. A customer inserts a card, authenticates, and ca
 - Common mistakes: using `double` for money (use `BigDecimal` or long cents); casting `double` to `int` for the dispenser; unique ids from timestamps alone; putting business rules in the `main` flow.
 
 ## Run
-mvn -q -pl problems/atm compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :atm compile exec:java` |

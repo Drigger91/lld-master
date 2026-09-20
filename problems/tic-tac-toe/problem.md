@@ -16,11 +16,20 @@ Design a two-player tic-tac-toe game on a 3×3 board. Players alternate placing 
 6. Expose `getStatus()`, `getWinner()`, `getCurrentPlayer()`, and the `Board` for display.
 7. `Game.play()` runs an interactive loop on stdin, re-prompting on invalid input until the game ends.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - Single JVM, in-memory; no move history, undo or persistence.
 - Fixed 3×3 board; `'-'` marks an empty cell.
 - `Board.makeMove` and `Game.makeMove` are `synchronized`, though the game is inherently sequential.
 - Win check is a full O(9) scan after each move (fine for 3×3; not designed for N×N).
+
+## Constraints
+- Exactly two players; each symbol is a single `char` that must differ from the other player's symbol and from the empty marker `'-'` (the code does not validate this — the caller guarantees it).
+- A valid move has `0 <= row <= 2` and `0 <= col <= 2` and targets an empty cell; a `Board` accepts at most 9 moves in total, and `movesCount` always equals the number of non-`'-'` cells.
+- Exactly three statuses — `GameStatus.IN_PROGRESS`, `WIN`, `DRAW` — and the status changes at most once, from `IN_PROGRESS` to a terminal state, never back.
+- `getWinner()` is non-`null` if and only if the status is `WIN`, and the winner is always the player who made the last successful move.
+- The turn passes only on a successful move, so after `k` successful moves the current player is player 1 when `k` is even and player 2 when `k` is odd (until the game ends).
+- A finished game has between 5 and 9 moves: a `WIN` needs at least 5, a `DRAW` exactly 9.
+- One `Game` object per match — a finished game cannot be reset or replayed; no AI opponent and no N×N generalisation.
 
 ## Clarifying questions to ask
 - Board size? — Fixed 3×3.
@@ -44,8 +53,6 @@ Design a two-player tic-tac-toe game on a 3×3 board. Players alternate placing 
 - Follow-ups go to N×N with O(1) win detection (per-row/col/diagonal counters), undo (move stack), and pluggable players (`Strategy` for human vs computer).
 
 ## Run
-mvn -q -pl problems/tic-tac-toe compile exec:java
-
-Interactive mode (reads moves from stdin):
-
-mvn -q -pl problems/tic-tac-toe compile exec:java -Dexec.args="--interactive"
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :tic-tac-toe compile exec:java` |

@@ -16,12 +16,21 @@ Design the controller for the traffic lights at an intersection. Each road has i
 6. `stopTrafficControl()` stops all cycling threads and waits for them to finish; calling `start` twice does not spawn duplicate threads.
 7. `getCurrentSignal()` reports a light's current state at any time.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - One thread per light, marked daemon so a forgotten `stop` cannot keep the JVM alive; threads exit on interrupt.
 - `changeSignal`/`getCurrentSignal` are `synchronized`; the emergency override and the cycling thread may race, and the cycling thread will overwrite an emergency GREEN on its next transition (the override is not sticky).
 - Lights on different roads are **not** coordinated — nothing prevents two crossing roads from being green simultaneously. This is a known limitation and the main follow-up.
 - `TrafficController` is a lazily-created singleton; roads live in a `HashMap` (no ordering guarantee).
 - Timing uses `Thread.sleep`; no scheduler, no wall-clock precision guarantees.
+
+## Constraints
+- Exactly three signals — `Signal.RED`, `YELLOW`, `GREEN` — every light starts at `RED`, and the only cycle is RED → GREEN → YELLOW → RED (no RED+YELLOW, flashing or off states).
+- `1 <= roads <= 20`: one cycling thread per road, so tens of threads, not thousands. Each road has exactly one `TrafficLight`, assigned via `setTrafficLight` **before** `startTrafficControl()` (a road with a `null` light throws `NullPointerException` on start).
+- Durations are `int` milliseconds with `0 <= duration <= 60_000`; the setters do not validate, and a negative value makes `Thread.sleep` throw.
+- Road ids are unique `String`s: `addRoad` with an existing id silently replaces the previous road.
+- The set of cycling threads is fixed at `startTrafficControl()`: roads added afterwards are not cycled and `removeRoad` does not stop a running thread — a restart (`stop` then `start`) is required to pick up changes.
+- The emergency override only ever sets `GREEN`; it never sets `RED`/`YELLOW` and never touches other roads.
+- Single JVM; the controller knows only a flat map of roads — no intersection topology, phases, pedestrians or sensors.
 
 ## Clarifying questions to ask
 - Do lights at the same intersection need to be mutually exclusive? — Not in the base version; each light cycles independently (ask, then flag the limitation).
@@ -45,4 +54,6 @@ Design the controller for the traffic lights at an intersection. Each road has i
 - Interviewers will push toward intersection safety: a controller that owns the schedule (one road green at a time, or phases of non-conflicting roads) rather than independent lights.
 
 ## Run
-mvn -q -pl problems/traffic-signal-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :traffic-signal-system compile exec:java` |

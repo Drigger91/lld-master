@@ -17,13 +17,20 @@ Design a task management system where users are assigned tasks that have a title
 7. Retrieve the list of tasks assigned to a user.
 8. Operations on unknown task ids are no-ops rather than errors.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory only; a single `TaskManager` Singleton holds all state.
 - Thread-safety: `ConcurrentHashMap` for the task and per-user indexes, `CopyOnWriteArrayList` per user, and `synchronized (task)` around multi-field updates; searches iterate live maps without locking, so results are weakly consistent.
 - Lists returned by `getTaskHistory` are defensive copies; `searchTasks`/`filterTasks` return fresh lists.
-- Status is a flat enum (`PENDING`, `IN_PROGRESS`, `COMPLETED`) with no transition rules enforced.
-- `Task.assignedUser` is `final`; reassignment is expressed by passing a new `Task` object with the same id to `updateTask`.
 - `User` does not override `equals`, so reassignment detection relies on reference identity.
+
+## Constraints
+- Status is exactly `PENDING`, `IN_PROGRESS`, `COMPLETED`; a new task always starts as `PENDING` and any status may be set directly (no transition rules).
+- Task ids are caller-supplied `String`s and must be unique: `createTask` with an existing id silently replaces the map entry and appends a second entry to the user's list.
+- Every task has exactly one assignee, fixed for the lifetime of the `Task` object (`assignedUser` is `final`); reassignment is expressed by passing a new `Task` with the same id to `updateTask`.
+- `priority` is an unbounded `int` (the demo uses 1 and 2); `filterTasks` matches it by exact value.
+- `dueDate` is a `java.util.Date` and must be non-null (`filterTasks` NPEs otherwise); the date range is inclusive on both ends and all four filter criteria are mandatory and ANDed — there is no wildcard.
+- Keyword search is a case-sensitive `String.contains` on title or description; both fields must be non-null.
+- Scale: hundreds of users and thousands of tasks in a single JVM; every search and filter is a full O(n) scan.
 
 ## Clarifying questions to ask
 - Can a task have more than one assignee? — No, exactly one user.
@@ -47,4 +54,6 @@ Design a task management system where users are assigned tasks that have a title
 - Common mistakes: returning internal lists (allowing callers to mutate the index); checking reassignment with `!=` on users that lack `equals`; forgetting to remove a task from the user index on delete; letting `filterTasks` NPE on a task with a null due date.
 
 ## Run
-mvn -q -pl problems/task-management-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :task-management-system compile exec:java` |

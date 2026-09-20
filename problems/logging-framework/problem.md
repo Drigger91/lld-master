@@ -16,12 +16,21 @@ Design a small logging framework that application code can use to emit messages 
 6. Level and appender can be changed at runtime through a configuration object; subsequent calls use the new configuration.
 7. There is a single, globally accessible logger instance; its default configuration is level INFO with console output.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory configuration only; nothing is persisted apart from what the file/database appenders write.
 - The logger is a Singleton, so every caller shares one configuration.
 - No explicit synchronisation in the logger: level checks and appends are not atomic with respect to `setConfig`, and the file appender opens/closes the file on each write. Fine for a demo, not for high-throughput logging.
-- One appender at a time (a config holds exactly one `LogAppender`).
 - Appender I/O failures are caught and printed; they never propagate to the caller.
+
+## Constraints
+- Exactly five levels, declared in this order: `DEBUG`, `INFO`, `WARNING`, `ERROR`, `FATAL`; severity is the enum ordinal (`DEBUG` = 0 … `FATAL` = 4) and there is no way to add or reorder levels at runtime.
+- A message is emitted iff `level.ordinal() >= config.getLogLevel().ordinal()`; with the default `INFO` configuration exactly `DEBUG` is dropped and the other four levels are emitted.
+- Exactly one appender at a time: a `LoggerConfig` holds one `LogLevel` and one `LogAppender`, never a list.
+- Exactly three built-in appenders: `ConsoleAppender` (stdout), `FileAppender` (append-mode file at a caller-supplied path) and `DatabaseAppender` (JDBC `INSERT INTO logs (level, message, timestamp)`); no rotation, buffering or connection pooling.
+- A log call carries a single `String` message; no format arguments, no `Throwable`, no structured key/value fields.
+- The output line format is fixed to `[LEVEL] <epochMillis> - <message>`; the timestamp is `System.currentTimeMillis()` captured when the `LogMessage` is built.
+- Single JVM with exactly one logger (`Logger.getInstance()`); no named, hierarchical or per-class loggers.
+- Demo-scale throughput (tens of lines per run), not thousands per second.
 
 ## Clarifying questions to ask
 - Can there be multiple appenders active at once? — No, one appender per configuration (a composite appender is a natural extension).
@@ -46,4 +55,6 @@ Design a small logging framework that application code can use to emit messages 
 - Common mistakes: filtering inside each appender instead of once in the logger; making `LogMessage` mutable; letting appender exceptions crash the application.
 
 ## Run
-mvn -q -pl problems/logging-framework compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :logging-framework compile exec:java` |

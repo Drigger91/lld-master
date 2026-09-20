@@ -18,11 +18,19 @@ Design a scheduled queue: producers submit tasks that must be executed at a give
 6. A consumer for a topic executes tasks only when their schedule time has been reached, in schedule-time order.
 7. A task's textual representation shows its topic, key and message so it can be logged.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory only; tasks are lost on restart.
 - `ScheduledTask` is immutable (all fields `final`); equality and hashing are value-based (Lombok `@Data`).
-- Payloads are Jackson `ObjectNode`s, so any JSON object is accepted as a message.
 - Scheduling, queueing and consumption are not yet implemented; when added they must be safe for concurrent producers and one consumer per topic.
+
+## Constraints
+- A task is exactly the triple `topic` (`String`), `key` (`String`), `message` (Jackson `ObjectNode`); the payload must be a JSON object — arrays, scalars and `null` are not valid messages.
+- `message` is never null: both constructors throw `RuntimeException("Message cannot be null")`; `topic` and an explicitly supplied `key` are not validated (null or blank is accepted as-is).
+- A generated key is a random UUID string (36 characters) assigned once in the constructor; a task's key never changes after construction.
+- The shipped code performs no uniqueness check on keys; two `ScheduledTask`s are equal only when topic, key and message are all equal (Lombok `@Data`).
+- A schedule time must be strictly in the future at submission; a task is consumed at or after that time, never before, with best-effort (millisecond-level, not hard real-time) precision.
+- One queue per topic and one consumer per topic; a consumed task is removed from its queue and runs at most once per JVM run.
+- Scale: tens of topics and up to a few thousand pending tasks per topic in a single JVM; no cross-process producers or consumers.
 
 ## Clarifying questions to ask
 - What is the message format? — A JSON object (`ObjectNode`); the queue does not interpret it.
@@ -46,4 +54,6 @@ Design a scheduled queue: producers submit tasks that must be executed at a give
 - Common mistakes: generating a key on every `equals`/`hashCode` call, mutating the payload after submission, busy-polling the queue, letting a throwing task kill the consumer thread.
 
 ## Run
-mvn -q -pl problems/scheduled-task-queue compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :scheduled-task-queue compile exec:java` |

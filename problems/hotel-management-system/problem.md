@@ -15,13 +15,21 @@ Design the reservation system for a hotel. Guests book a room for a check-in/che
 5. Cancel a confirmed reservation before check-in, freeing the room.
 6. Reject invalid transitions (check-in without a booking, check-out of a room that is not occupied, cancelling a cancelled reservation) with an exception.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - `HotelManagementSystem` is a singleton with in-memory `ConcurrentHashMap`s for guests, rooms and reservations; nothing is persisted.
 - `bookRoom`, `cancelReservation`, `checkIn`, `checkOut` are `synchronized` on the system; `Room` and `Reservation` state changes are additionally `synchronized` on the entity.
-- Room availability is a status flag (`AVAILABLE / BOOKED / OCCUPIED`), not a calendar: a booked room is unavailable for *every* date until it is checked out or cancelled.
 - Bill = `price × DAYS.between(checkIn, checkOut)` (nights, exclusive of check-out day).
 - Payment implementations (`CashPayment`, `CreditCardPayment`) are stubs that always succeed.
 - Completed and cancelled reservations are removed from the registry (no history).
+
+## Constraints
+- Fixed vocabularies: `RoomType` is exactly `SINGLE, DOUBLE, DELUXE, SUITE`; `RoomStatus` is exactly `AVAILABLE, BOOKED, OCCUPIED`; `ReservationStatus` is exactly `CONFIRMED, CANCELLED` (there is no `COMPLETED`).
+- Availability is per room, not per date: a room can be booked only while its status is `AVAILABLE`, so a booked room is unavailable for *every* date until it is checked out or cancelled.
+- Invariant: a room has at most one live reservation, and its status only changes via `book()`, `checkIn()`, `release()`, `checkOut()` along `AVAILABLE→BOOKED`, `BOOKED→OCCUPIED`, `BOOKED→AVAILABLE` (cancel) and `OCCUPIED→AVAILABLE` (check-out); anything else throws.
+- Dates are `LocalDate`s at day granularity; `checkIn < checkOut` is assumed and never validated (a same-day range bills zero nights), and nothing compares them to the real clock.
+- Guest and room ids are caller-supplied strings (`G001`, `R001`) and re-adding an id overwrites; reservation ids are `RES` + 8 uppercase hex characters from a UUID.
+- One hotel with tens of rooms and hundreds of reservations; every registry is a flat map with no index by room type or date.
+- Exactly two `Payment` implementations, `CashPayment` and `CreditCardPayment`; amounts are `double`; one room and one guest per reservation; no deposits, refunds, housekeeping or maintenance states.
 
 ## Clarifying questions to ask
 - Is availability per date or per room? — Per room status; date-based availability is a follow-up.
@@ -49,4 +57,6 @@ Design the reservation system for a hotel. Guests book a room for a check-in/che
 - Common mistakes: modelling availability as a boolean and losing the BOOKED vs. OCCUPIED distinction; freeing a room on cancel via `checkOut()` (the original bug in this module); deleting reservations instead of keeping a `COMPLETED` status; `double` for money.
 
 ## Run
-mvn -q -pl problems/hotel-management-system compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :hotel-management-system compile exec:java` |

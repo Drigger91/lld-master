@@ -17,12 +17,21 @@ Design the control logic of a vending machine. A customer selects a product, ins
 7. `returnChange()` before payment is complete cancels the transaction and refunds everything inserted.
 8. Actions invalid in the current state are rejected with a message rather than changing state.
 
-## Non-functional requirements & constraints
+## Non-functional requirements
 - In-memory, single machine (`VendingMachine` is a lazily-created singleton).
 - Prices and amounts are `double`s; no rounding/currency handling.
 - The machine has no notion of a limited coin reserve — it can always make change.
 - Inventory uses a `ConcurrentHashMap`, but the state transitions themselves are not synchronized; one customer at a time is assumed.
 - Feedback is via `System.out` messages; the API methods return `void`.
+
+## Constraints
+- Exactly four coin and four note denominations: `Coin` = `ONE(1)`, `TWO(2)`, `FIVE(5)`, `TEN(10)`; `Note` = `TEN(10)`, `TWENTY(20)`, `FIFTY(50)`, `HUNDRED(100)`. No other denominations, no card/wallet payment.
+- Exactly four states — `IdleState`, `ReadyState`, `DispenseState`, `ReturnChangeState` — and at most one transaction (one `selectedProduct`, one `totalPayment`) in flight at a time.
+- A product's `price` is `> 0`; stock quantities are non-negative `int`s. A product is "in stock" only if it is present in the `Inventory` **and** its quantity is `> 0`.
+- Each dispense decrements the selected product's quantity by exactly 1; stock never goes negative because `selectProduct` refuses an out-of-stock product and the machine cannot reach `DispenseState` without a selection.
+- `totalPayment >= 0` at all times, and `totalPayment == 0` with `selectedProduct == null` whenever the machine is idle — every path back to `IdleState` resets both.
+- Overpayment is bounded: payment stops being accepted once `totalPayment >= price`, so the total exceeds the price by less than one denomination (at most `HUNDRED`).
+- Scale is that of a physical machine: tens of products with quantities in the tens; one singleton means one machine per JVM.
 
 ## Clarifying questions to ask
 - What is the order of operations? — Select product first, then pay, then dispense, then collect change.
@@ -51,4 +60,6 @@ Design the control logic of a vending machine. A customer selects a product, ins
 - Interviewers probe: what if the machine cannot make change (coin reserve), how to make it thread-safe (lock around each public action), and why states are pre-built once rather than allocated per transition.
 
 ## Run
-mvn -q -pl problems/vending-machine compile exec:java
+| Language | Command |
+|---|---|
+| Java | `mvn -q -pl :vending-machine compile exec:java` |
