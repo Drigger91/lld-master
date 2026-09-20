@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.drigger91.lld</groupId>
+    <artifactId>lld-master</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>LLD Master</name>
+    <description>Low-level design interview prep: problems, expected behaviours and Java solutions</description>
+
+    <modules>
+        <module>problems/airline-management-system</module>
+        <module>problems/atm</module>
+        <module>problems/car-rental-system</module>
+        <module>problems/coffee-vending-machine</module>
+        <module>problems/concert-ticket-booking-system</module>
+        <module>problems/digital-wallet</module>
+        <module>problems/doctor-appointment-booking</module>
+        <module>problems/document-sharing-service</module>
+        <module>problems/elevator-system</module>
+        <module>problems/hotel-management-system</module>
+        <module>problems/library-management-system</module>
+        <module>problems/linkedin</module>
+        <module>problems/logging-framework</module>
+        <module>problems/lru-cache</module>
+        <module>problems/online-auction-system</module>
+        <module>problems/parking-lot</module>
+        <module>problems/pub-sub-system</module>
+        <module>problems/restaurant-management-system</module>
+        <module>problems/scheduled-task-queue</module>
+        <module>problems/social-networking-service</module>
+        <module>problems/splitwise</module>
+        <module>problems/stack-overflow</module>
+        <module>problems/task-management-system</module>
+        <module>problems/tic-tac-toe</module>
+        <module>problems/traffic-signal-system</module>
+        <module>problems/vending-machine</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.42</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.19.4</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Each module sets <exec.mainClass> so `mvn -q -pl problems/<name> compile exec:java` runs its demo -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
